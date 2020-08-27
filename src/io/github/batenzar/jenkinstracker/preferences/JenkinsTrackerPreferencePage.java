@@ -1,9 +1,9 @@
-package io.batenzar.jenkinstracker.preferences;
+package io.github.batenzar.jenkinstracker.preferences;
 
 import org.eclipse.jface.preference.*;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import io.batenzar.jenkinstracker.Activator;
+import io.github.batenzar.jenkinstracker.Activator;
 
 import org.eclipse.ui.IWorkbench;
 

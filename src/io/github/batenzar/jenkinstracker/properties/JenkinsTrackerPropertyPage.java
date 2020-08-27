@@ -1,4 +1,4 @@
-package io.batenzar.jenkinstracker.properties;
+package io.github.batenzar.jenkinstracker.properties;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;

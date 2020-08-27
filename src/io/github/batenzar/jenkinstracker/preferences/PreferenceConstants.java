@@ -1,4 +1,4 @@
-package io.batenzar.jenkinstracker.preferences;
+package io.github.batenzar.jenkinstracker.preferences;
 
 /**
  * Constant definitions for plug-in preferences

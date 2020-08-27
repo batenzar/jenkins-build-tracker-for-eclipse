@@ -5,23 +5,23 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            id="io.batenzar.jenkinstracker.preferences.JenkinsTrackerPreferencePage"
+            id="io.github.batenzar.jenkinstracker.preferences.JenkinsTrackerPreferencePage"
             name="JenkinsTracker Preferences"
-            class="io.batenzar.jenkinstracker.preferences.JenkinsTrackerPreferencePage">
+            class="io.github.batenzar.jenkinstracker.preferences.JenkinsTrackerPreferencePage">
       </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="io.batenzar.jenkinstracker.preferences.PreferenceInitializer">
+            class="io.github.batenzar.jenkinstracker.preferences.PreferenceInitializer">
       </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.propertyPages">
       <page
-            id="io.batenzar.jenkinstracker.properties.samplePropertyPage"
+            id="io.github.batenzar.jenkinstracker.properties.samplePropertyPage"
             name="JenkinsTracker Page"
-            class="io.batenzar.jenkinstracker.properties.JenkinsTrackerPropertyPage"
+            class="io.github.batenzar.jenkinstracker.properties.JenkinsTrackerPropertyPage"
             nameFilter="*.*">
          <enabledWhen>
             <instanceof
@@ -34,14 +34,14 @@
          point="org.eclipse.ui.views">
       <category
             name="JenkinsTracker Category"
-            id="io.batenzar.jenkinstracker">
+            id="io.github.batenzar.jenkinstracker">
       </category>
       <view
-            id="io.batenzar.jenkinstracker.views.JenkinsTrackerView"
+            id="io.github.batenzar.jenkinstracker.views.JenkinsTrackerView"
             name="JenkinsTracker View"
             icon="icons/sample.png"
-            class="io.batenzar.jenkinstracker.views.JenkinsTrackerView"
-            category="io.batenzar.jenkinstracker"
+            class="io.github.batenzar.jenkinstracker.views.JenkinsTrackerView"
+            category="io.github.batenzar.jenkinstracker"
             inject="true">
       </view>
    </extension>

@@ -1,4 +1,4 @@
-package io.batenzar.jenkinstracker;
+package io.github.batenzar.jenkinstracker;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;

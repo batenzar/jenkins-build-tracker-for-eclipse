@@ -1,12 +1,12 @@
-package io.batenzar.jenkinstracker.views;
+package io.github.batenzar.jenkinstracker.views;
 
 import java.util.ArrayList;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
 
-import io.batenzar.jenkinstracker.Activator;
-import io.batenzar.jenkinstracker.preferences.PreferenceConstants;
+import io.github.batenzar.jenkinstracker.Activator;
+import io.github.batenzar.jenkinstracker.preferences.PreferenceConstants;
 
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.graphics.Image;

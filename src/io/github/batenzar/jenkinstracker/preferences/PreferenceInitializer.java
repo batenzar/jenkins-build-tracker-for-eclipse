@@ -1,9 +1,9 @@
-package io.batenzar.jenkinstracker.preferences;
+package io.github.batenzar.jenkinstracker.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import io.batenzar.jenkinstracker.Activator;
+import io.github.batenzar.jenkinstracker.Activator;
 
 /**
  * Class used to initialize default preference values.
