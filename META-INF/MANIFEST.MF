@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jenkins-build-tracker-for-eclipse
+Bundle-SymbolicName: jenkins-build-tracker-for-eclipse;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: io.batenzar.jenkinstracker.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: jenkins.build.tracker.for.eclipse
+Import-Package: javax.inject
+Bundle-ActivationPolicy: lazy
