@@ -17,4 +17,6 @@ public class PreferenceConstants {
 	public static final String URL02 = "url02";
 	public static final String URL03 = "url03";
 	
+	public static final String INTERVAL = "intervalPref";
+	
 }

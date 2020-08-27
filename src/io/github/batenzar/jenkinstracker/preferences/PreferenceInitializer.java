@@ -22,11 +22,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.P_STRING,
 				"Default value");
 		store.setDefault(PreferenceConstants.URL01,
-				"example.url.01");
+				"http://localhost");
 		store.setDefault(PreferenceConstants.URL02,
-				"example.url.02");
+				"http://127.0.0.1");
 		store.setDefault(PreferenceConstants.URL03,
 				"example.url.03");
+		store.setDefault(PreferenceConstants.INTERVAL,
+				300);
 	}
 
 }

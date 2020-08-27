@@ -63,6 +63,8 @@ public class JenkinsTrackerPreferencePage
 				new StringFieldEditor(PreferenceConstants.URL02, "URL 02:", getFieldEditorParent()));
 		addField(
 				new StringFieldEditor(PreferenceConstants.URL03, "URL 03:", getFieldEditorParent()));
+		addField(
+				new IntegerFieldEditor(PreferenceConstants.INTERVAL, "Update Interval (second):", getFieldEditorParent()));
 		
 		
 		

@@ -1,23 +1,47 @@
 package io.github.batenzar.jenkinstracker.views;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.part.*;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.DrillDownAdapter;
+import org.eclipse.ui.part.ViewPart;
 
 import io.github.batenzar.jenkinstracker.Activator;
 import io.github.batenzar.jenkinstracker.preferences.PreferenceConstants;
-
-import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.jface.action.*;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.*;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.SWT;
-import org.eclipse.core.runtime.IAdaptable;
-import javax.inject.Inject;
 
 
 /**
@@ -52,6 +76,7 @@ public class JenkinsTrackerView extends ViewPart {
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
+	private TreeObject toUrl1; 
 	 
 	class TreeObject implements IAdaptable {
 		private String name;
@@ -156,7 +181,7 @@ public class JenkinsTrackerView extends ViewPart {
 			String url2 = store.getString(PreferenceConstants.URL02);
 			String url3 = store.getString(PreferenceConstants.URL03);
 			
-			TreeObject toUrl1 = new TreeObject(url1);
+			toUrl1 = new TreeObject(url1);
 			TreeObject toUrl2 = new TreeObject(url2);
 			TreeObject toUrl3 = new TreeObject(url3);
 			
@@ -245,7 +270,77 @@ public class JenkinsTrackerView extends ViewPart {
 	private void makeActions() {
 		action1 = new Action() {
 			public void run() {
-				showMessage("Action 1 executed");
+				Runnable r = new Runnable() {
+
+					@Override
+					public void run() {
+						IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+						try {
+
+							// Temporary auto accept all cert
+							TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+								public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+									return null;
+								}
+
+								public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
+										String authType) {
+								}
+
+								public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
+										String authType) {
+								}
+							} };
+
+							SSLContext sc = SSLContext.getInstance("SSL");
+							sc.init(null, trustAllCerts, new java.security.SecureRandom());
+							HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+							URL url = new URL(store.getString(PreferenceConstants.URL01));
+							HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+							conn.setRequestMethod("GET");
+							conn.setRequestProperty("Accept", "application/json");
+							if (conn.getResponseCode() != 200) {
+								throw new RuntimeException("Failed : HTTP Error code : " + conn.getResponseCode());
+							}
+							InputStreamReader in = new InputStreamReader(conn.getInputStream());
+							BufferedReader br = new BufferedReader(in);
+							String output;
+							while ((output = br.readLine()) != null) {
+								System.out.println(output);
+							}
+
+							// TODO read data
+							// https://www.jenkins.io/doc/book/using/remote-access-api/
+							// get last build number
+							// get last failed build number
+
+							toUrl1.name = output;
+							conn.disconnect();
+						} catch (Exception e) {
+							toUrl1.name = e.getMessage();
+							System.err.println(e.getMessage());
+						}
+						
+						Display.getDefault().asyncExec(new Runnable() {
+							public void run() {
+								viewer.refresh();
+							}
+						});
+						
+
+//						try {
+//							Thread.sleep(store.getLong(PreferenceConstants.INTERVAL) * 1000);
+//						} catch (InterruptedException e) {
+//							System.err.println(e.getMessage());
+//						}
+
+					}
+				};
+
+				Thread t = new Thread(r);
+				t.setDaemon(true);
+				t.start();
 			}
 		};
 		action1.setText("Action 1");
