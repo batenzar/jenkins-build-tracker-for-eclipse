@@ -84,6 +84,8 @@ public class JenkinsTrackerView extends ViewPart {
 	class TreeObject implements IAdaptable {
 		private String name;
 		private TreeParent parent;
+		private String url;
+		private String status;
 		
 		public TreeObject(String name) {
 			this.name = name;
@@ -99,12 +101,13 @@ public class JenkinsTrackerView extends ViewPart {
 		}
 		@Override
 		public String toString() {
-			return getName();
+			return getName() + ": " + status;
 		}
 		@Override
 		public <T> T getAdapter(Class<T> key) {
 			return null;
 		}
+		
 	}
 	
 	class TreeParent extends TreeObject {
@@ -205,14 +208,16 @@ public class JenkinsTrackerView extends ViewPart {
 		}
 
 		public Image getImage(Object obj) {
-			// if (obj instanceof TreeObject) {
-			// TODO Icon
-			// "/static/??/images/32x32/nobuilt.png";
-			// "/static/??/images/32x32/blue.png";
-			// "/static/??/images/32x32/red.png";
-			// }
-
-			String imageKey = ISharedImages.IMG_OBJ_ELEMENT;
+			String imageKey = ISharedImages.IMG_OBJ_FILE;
+			if (obj instanceof TreeObject) {
+				// TODO Icon
+				// "/static/??/images/32x32/nobuilt.png";
+				// "/static/??/images/32x32/blue.png";
+				// "/static/??/images/32x32/red.png";
+				String status = ((TreeObject) obj).status;
+				if ("Failure".equalsIgnoreCase(status))
+					imageKey = ISharedImages.IMG_OBJS_ERROR_TSK;
+			}
 			if (obj instanceof TreeParent)
 				imageKey = ISharedImages.IMG_OBJ_FOLDER;
 			return workbench.getSharedImages().getImage(imageKey);
@@ -339,10 +344,9 @@ public class JenkinsTrackerView extends ViewPart {
 									Object result = engine.eval(script);
 
 									Map contents = (Map) result;
-									String jobName = (String) contents.get("fullDisplayName");
-									String status = (String) contents.get("result");
-
-									treeObj.name = jobName + ": " + status;
+									treeObj.url = (String) u[1];
+									treeObj.name = (String) contents.get("fullDisplayName");
+									treeObj.status = (String) contents.get("result");
 									conn.disconnect();
 								} catch (Exception e) {
 									treeObj.name = e.getMessage();
