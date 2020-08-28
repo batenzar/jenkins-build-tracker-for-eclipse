@@ -7,6 +7,6 @@ Jenkins Build Tracker plugin for Eclipse
 3. Restart Eclipse
 
 ## Sample URL
-https://{{server}}/job/{{job_folder}}/job/{{job_name}}/lastBuild/api/json?tree=result  
+https://{{server}}/job/{{job_folder}}/job/{{job_name}}/lastBuild/api/json?tree=fullDisplayName,result  
 
 Ref: https://stackoverflow.com/questions/26236206/jenkins-remote-api-is-it-possible-to-retrieve-the-complete-job-tree-using-the
