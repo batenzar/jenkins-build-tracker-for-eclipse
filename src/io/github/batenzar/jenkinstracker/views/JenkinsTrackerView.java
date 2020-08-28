@@ -5,12 +5,15 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
@@ -76,7 +79,7 @@ public class JenkinsTrackerView extends ViewPart {
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
-	private TreeObject toUrl1; 
+	private TreeObject toUrl1,toUrl2,toUrl3; 
 	 
 	class TreeObject implements IAdaptable {
 		private String name;
@@ -182,8 +185,8 @@ public class JenkinsTrackerView extends ViewPart {
 			String url3 = store.getString(PreferenceConstants.URL03);
 			
 			toUrl1 = new TreeObject(url1);
-			TreeObject toUrl2 = new TreeObject(url2);
-			TreeObject toUrl3 = new TreeObject(url3);
+			toUrl2 = new TreeObject(url2);
+			toUrl3 = new TreeObject(url3);
 			
 			root.addChild(toUrl1);
 			root.addChild(toUrl2);
@@ -200,10 +203,18 @@ public class JenkinsTrackerView extends ViewPart {
 		public String getText(Object obj) {
 			return obj.toString();
 		}
+
 		public Image getImage(Object obj) {
+			// if (obj instanceof TreeObject) {
+			// TODO Icon
+			// "/static/??/images/32x32/nobuilt.png";
+			// "/static/??/images/32x32/blue.png";
+			// "/static/??/images/32x32/red.png";
+			// }
+
 			String imageKey = ISharedImages.IMG_OBJ_ELEMENT;
 			if (obj instanceof TreeParent)
-			   imageKey = ISharedImages.IMG_OBJ_FOLDER;
+				imageKey = ISharedImages.IMG_OBJ_FOLDER;
 			return workbench.getSharedImages().getImage(imageKey);
 		}
 	}
@@ -296,29 +307,49 @@ public class JenkinsTrackerView extends ViewPart {
 							sc.init(null, trustAllCerts, new java.security.SecureRandom());
 							HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
-							URL url = new URL(store.getString(PreferenceConstants.URL01));
-							HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-							conn.setRequestMethod("GET");
-							conn.setRequestProperty("Accept", "application/json");
-							if (conn.getResponseCode() != 200) {
-								throw new RuntimeException("Failed : HTTP Error code : " + conn.getResponseCode());
-							}
-							InputStreamReader in = new InputStreamReader(conn.getInputStream());
-							BufferedReader br = new BufferedReader(in);
-							String output;
-							while ((output = br.readLine()) != null) {
-								System.out.println(output);
-							}
+							Object urlsPref[][] = new Object[][] {
+									{ toUrl1, store.getString(PreferenceConstants.URL01) },
+									{ toUrl2, store.getString(PreferenceConstants.URL02) },
+									{ toUrl3, store.getString(PreferenceConstants.URL03) } };
 
-							// TODO read data
-							// https://www.jenkins.io/doc/book/using/remote-access-api/
-							// get last build number
-							// get last failed build number
+							for (Object[] u : urlsPref) {
+								TreeObject treeObj = (TreeObject) u[0];
+								URL url = new URL((String) u[1]);
+								try {
+									HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+									conn.setRequestMethod("GET");
+									conn.setRequestProperty("Accept", "application/json");
+									if (conn.getResponseCode() != 200) {
+										throw new RuntimeException(
+												"Failed : HTTP Error code : " + conn.getResponseCode());
+									}
 
-							toUrl1.name = output;
-							conn.disconnect();
+									StringBuilder response = new StringBuilder();
+									InputStreamReader in = new InputStreamReader(conn.getInputStream());
+									BufferedReader br = new BufferedReader(in);
+									String output;
+									while ((output = br.readLine()) != null) {
+										response.append(output);
+									}
+
+									// use JSON parser from JavaScript ScriptEngine
+									ScriptEngine engine = new ScriptEngineManager().getEngineByName("javascript");
+									String json = response.toString();
+									String script = "Java.asJSONCompatible(" + json + ")";
+									Object result = engine.eval(script);
+
+									Map contents = (Map) result;
+									String jobName = (String) contents.get("fullDisplayName");
+									String status = (String) contents.get("result");
+
+									treeObj.name = jobName + ": " + status;
+									conn.disconnect();
+								} catch (Exception e) {
+									treeObj.name = e.getMessage();
+									System.err.println(e.getMessage());
+								}
+							}
 						} catch (Exception e) {
-							toUrl1.name = e.getMessage();
 							System.err.println(e.getMessage());
 						}
 						
@@ -327,14 +358,6 @@ public class JenkinsTrackerView extends ViewPart {
 								viewer.refresh();
 							}
 						});
-						
-
-//						try {
-//							Thread.sleep(store.getLong(PreferenceConstants.INTERVAL) * 1000);
-//						} catch (InterruptedException e) {
-//							System.err.println(e.getMessage());
-//						}
-
 					}
 				};
 
@@ -343,8 +366,8 @@ public class JenkinsTrackerView extends ViewPart {
 				t.start();
 			}
 		};
-		action1.setText("Action 1");
-		action1.setToolTipText("Action 1 tooltip");
+		action1.setText("Refresh All");
+		action1.setToolTipText("Refresh All url");
 		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 		
